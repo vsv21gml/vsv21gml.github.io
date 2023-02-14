@@ -1,5 +1,11 @@
 <template>
   <div class="gallery">
+    <div v-if="fullMode.enabled" class="gallery-full-view">
+      <img :src="`/wedding/gallery/${fullMode.now}.jpg`"/>
+      <div class="close-button" @click="handleCloseFullView">X</div>
+      <div v-if="fullMode.now > 1" class="left-view-button" @click="handleLeftView">&lt;</div>
+      <div v-if="fullMode.now < galleryLength" class="right-view-button" @click="handleRightView">&gt;</div>
+    </div>
     <img src="~@/assets/images/bunny.png" class="bunny" />
     <div class="description">
       photo gallery
@@ -7,10 +13,10 @@
     <div></div>
     <div class="gallery-container" ref="gal">
       <div class="gallery-inner">
-        <div class="gallery-item" v-for="n in 6" :key="n">
+        <div class="gallery-item" v-for="n in galleryLength" :key="n" @click="handleClick(n)">
           <div class="image">
             <img
-              :src="`/gallery/${n - 1}.jpg`"
+              :src="`/wedding/gallery/${n}.jpg`"
               :style="{
                 transform: `translateX(${(((scrollX - (n - 1) * 250) / 4.8 +
                   50 >
@@ -36,8 +42,13 @@ export default {
   name: "Gallery",
   data() {
     return {
+      galleryLength: 6,
       scrollX: 0,
       width: 320,
+      fullMode: {
+        enabled: false,
+        now: 1,
+      },
     };
   },
   mounted() {
@@ -50,10 +61,56 @@ export default {
     );
     this.$refs.gal.scrollLeft = 850;
   },
+  methods: {
+    handleClick(now) {
+      this.fullMode = {
+        enabled: true,
+        now,
+      }
+    },
+    handleCloseFullView() {
+      this.fullMode.enabled = false;
+    },
+    handleLeftView() {
+      this.fullMode.now--;
+    },
+    handleRightView() {
+      this.fullMode.now++;
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
+.gallery-full-view {
+  position: fixed;
+  z-index: 12;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+  div {
+    position: absolute;
+    top: calc(50% - 60px);
+    font-size: 120px;
+    cursor: pointer;
+  }
+  .close-button {
+    top: 20px;
+    right: 20px;
+    font-size: 60px;
+  }
+  .left-view-button {
+    left: 0px;
+  }
+  .right-view-button {
+    right: 0px;
+  }
+}
 .gallery {
   padding-top: 32px;
   padding-bottom: 50px;
